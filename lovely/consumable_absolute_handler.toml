@@ -11,6 +11,7 @@ target = "functions/button_callbacks.lua"
 pattern = "local card = e.config.ref_table"
 position = "after"
 payload = '''if card.ability.consumeable and card.ability.gerio_unbreakable then
+	card.highlighted = false
 	local card2 = copy_card(card, nil, nil, area)
 	card2.ability.gerio_unbreakable = "bypass"
 	card = card2

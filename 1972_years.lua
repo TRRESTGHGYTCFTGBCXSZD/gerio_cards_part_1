@@ -8,6 +8,14 @@
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
+--to play mista's voicelines, it requires the sound, with directly calling love sound
+local mod_path = "" .. SMODS.current_mod.path
+--local angry_mista = love.audio.newSource(mod_path.."audio/angry_mista.wav", "static")
+SMODS.Sound{
+	key="angry_mista",
+	path="angry_mista.wav",
+}
+
 local vanilla_tarots = {
 "c_fool",
 "c_magician",
@@ -47,7 +55,7 @@ end
 
 SMODS.Atlas {
   -- Key for code to find it with
-  key = "geriolish_1",
+  key = "gerio_geriolish_1",
   -- The name of the file, for the code to pull the atlas from
   path = "geriolish.png",
   -- Width of each sprite in 1x size
@@ -58,13 +66,24 @@ SMODS.Atlas {
 
 SMODS.Atlas {
   -- Key for code to find it with
-  key = "gerio_cards",
+  key = "gerio_gerio_cards",
   -- The name of the file, for the code to pull the atlas from
   path = "gerio_skin.png",
   -- Width of each sprite in 1x size
   px = 71,
   -- Height of each sprite in 1x size
   py = 95
+}
+
+SMODS.Atlas {
+	-- Key for code to find it with
+	key = "gerio_edge_stickers",
+	-- The name of the file, for the code to pull the atlas from
+	path = "gerio_refurbished_stickers.png",
+	-- Width of each sprite in 1x size
+	px = 71,
+	-- Height of each sprite in 1x size
+	py = 95
 }
 
 local function tabledump(o)
@@ -118,8 +137,8 @@ SMODS.Suit{
 	key = 'Mista',
 	card_key = 'MISTA',
 	hidden = false,
-	lc_atlas = 'gerio_cards',
-	hc_atlas = 'gerio_cards',
+	lc_atlas = 'gerio_gerio_cards',
+	hc_atlas = 'gerio_gerio_cards',
 
 	lc_ui_atlas = 'ui_1',
 	hc_ui_atlas = 'ui_2',
@@ -251,13 +270,23 @@ end
 SMODS.Sticker{
 
 	key = 'gerio_unbreakable',
-	loc_txt = {
+	prefix_config = { key = false },
+	loc_vars = function(self, info_queue, card)
+		if card.ability.consumeable then
+		return { key = "gerio_unbreakable_consumable" }
+		else
+		return { key = "gerio_unbreakable" }
+		end
+	end,
+	--[[loc_txt = {
 		name = 'Absolute',
 		text = {
-			"Prevents from","Direct Removal Calls"
+				"Prevents from","Direct Removal Calls","SWEDEN"
 		}
-	},
+	},]]
 	default_compat = true,
+	atlas = "gerio_edge_stickers",
+	pos = { x = 1, y = 0 },
 	--[[compat_exceptions = {
 		eternal_compat = false,
 	},
@@ -270,22 +299,40 @@ SMODS.Sticker{
 SMODS.Sticker{
 
 	key = 'gerio_baseball',
-	loc_txt = {
+	loc_vars = function(self, info_queue, card)
+		return { key = "gerio_unbreakable" }
+	end,
+	--[[loc_txt = {
 		name = 'Baseball',
 		text = {
 			"Infinity Percent Base Boost"
 		}
-	},
+	},]]
 	default_compat = true,
+	atlas = "gerio_edge_stickers",
+	pos = { x = 2, y = 0 },
 }
+
+SMODS.Sticker:take_ownership("eternal", {
+	atlas = "gerio_edge_stickers",
+	pos = { x = 0, y = 0 },
+})
+SMODS.Sticker:take_ownership("perishable", {
+	atlas = "gerio_edge_stickers",
+	pos = { x = 0, y = 2 },
+})
+SMODS.Sticker:take_ownership("rental", {
+	atlas = "gerio_edge_stickers",
+	pos = { x = 1, y = 2 },
+})
 
 SMODS.DeckSkin{
 
 	key = 'gerio_poker1',
-	lc_atlas = 'gerio_cards',
-	hc_atlas = 'gerio_cards',
+	lc_atlas = 'gerio_gerio_cards',
+	hc_atlas = 'gerio_gerio_cards',
 	loc_txt = {
-		name = 'GerioSB Programmer Art',
+		["en-us"] = 'GerioSB Programmer Art',
 	},
 	suit = "Spades",
 	ranks = {"2","3","4","5","6","7","8","9","10","Jack","Queen","King","Ace"},
@@ -295,8 +342,8 @@ SMODS.DeckSkin{
 SMODS.DeckSkin{
 
 	key = 'gerio_poker2',
-	lc_atlas = 'gerio_cards',
-	hc_atlas = 'gerio_cards',
+	lc_atlas = 'gerio_gerio_cards',
+	hc_atlas = 'gerio_gerio_cards',
 	loc_txt = {
 		name = 'GerioSB Programmer Art',
 	},
@@ -308,8 +355,8 @@ SMODS.DeckSkin{
 SMODS.DeckSkin{
 
 	key = 'gerio_poker3',
-	lc_atlas = 'gerio_cards',
-	hc_atlas = 'gerio_cards',
+	lc_atlas = 'gerio_gerio_cards',
+	hc_atlas = 'gerio_gerio_cards',
 	loc_txt = {
 		name = 'GerioSB Programmer Art',
 	},
@@ -321,8 +368,8 @@ SMODS.DeckSkin{
 SMODS.DeckSkin{
 
 	key = 'gerio_poker4',
-	lc_atlas = 'gerio_cards',
-	hc_atlas = 'gerio_cards',
+	lc_atlas = 'gerio_gerio_cards',
+	hc_atlas = 'gerio_gerio_cards',
 	loc_txt = {
 		name = 'GerioSB Programmer Art',
 	},
@@ -335,62 +382,85 @@ SMODS.DeckSkin{
 G.P_CARDS["Mista"] = tabledeepcopy(G.P_CARDS["S_4"])
 G.P_CARDS["Mista"]["suit"] = "Mista"
 G.P_CARDS["Mista"]["pos"] = {["x"] = 2, ["y"] = 0}
-G.P_CARDS["Mista"]["atlas"] = "geriolish_1"
+G.P_CARDS["Mista"]["atlas"] = "gerio_geriolish_1"
 G.P_CARDS["Mista"]["name"] = "Mista Four"
 G.P_CARDS["Mista"]["value"] = "4"
 
 sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
 
 SMODS.Joker {
-  key = 'gerio_mista',
-  loc_txt = {
-    name = 'Mista HATES THAT NUMBER',
-    text = {
-      "#1#"
-    }
-  },
-  config = { extra = { mult = 4 } },
-  rarity = 4,
-  atlas = 'geriolish_1',
-  pos = { x = 0, y = 0 },
-  cost = 78,
-  loc_vars = function(self, info_queue, card)
-    return { vars = { card.ability.extra.mult } }
-  end,
-  calculate = function(self, card, context)
-    if context.joker_main then
-      -- Tells the joker what to do. In this case, it pulls the value of mult from the config, and tells the joker to use that variable as the "mult_mod".
-      return {
-        chip_mod = card.ability.extra.mult^2,
-        Xmult_mod = card.ability.extra.mult,
-        -- This is a localize function. Localize looks through the localization files, and translates it. It ensures your mod is able to be translated. I've left it out in most cases for clarity reasons, but this one is required, because it has a variable.
-        -- This specifically looks in the localization table for the 'variable' category, specifically under 'v_dictionary' in 'localization/en-us.lua', and searches that table for 'a_mult', which is short for add mult.
-        -- In the localization file, a_mult = "+#1#". Like with loc_vars, the vars in this message variable replace the #1#.
-        message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-        -- Without this, the mult will stil be added, but it'll just show as a blank red square that doesn't have any text.
-      }
-    end
-    if context.individual and context.cardarea == G.play then
-      -- :get_id tests for the rank of the card. Other than 2-10, Jack is 11, Queen is 12, King is 13, and Ace is 14.
-      if context.other_card:get_id() == 4 then
-        -- Specifically returning to context.other_card is fine with multiple values in a single return value, chips/mult are different from chip_mod and mult_mod, and automatically come with a message which plays in order of return.
-        card.ability.extra.mult = card.ability.extra.mult * 4
-		SMODS.eval_this(card, {
-			message = "Mista!",
-			colour = G.C.RED,
-			card = self
-		})
+	key = 'gerio_mista',
+	loc_txt = {
+		name = 'Mista HATES THAT NUMBER',
+		text = {
+		"#1#"
+		}
+	},
+	config = { extra = { mult = 4 } },
+	rarity = 4,
+	atlas = 'gerio_geriolish_1',
+	pos = { x = 0, y = 0 },
+	cost = 78,
+	loc_vars = function(self, info_queue, card)
+		return { vars = { card.ability.extra.mult } }
+	end,
+	calculate = function(self, card, context)
+		if context.joker_main then
+		-- Tells the joker what to do. In this case, it pulls the value of mult from the config, and tells the joker to use that variable as the "mult_mod".
+		local chippi = card.ability.extra.mult^2
+			if chippi >= math.huge then
+			chippi = 1.79769313486231570814527423732E308
+			SMODS.eval_this(card, {
+				message = "Too High!",
+				colour = G.C.RED,
+				card = self
+			})
+			end
 		return {
-          mult = card.ability.extra.mult,
-          card = context.other_card
-        }
-      end
-    end
-  end,
-  calc_dollar_bonus = function(self, card)
-    local bonus = card.ability.extra.mult
-    if bonus > 0 then return bonus end
-  end,
+			chip_mod = chippi,
+			Xmult_mod = card.ability.extra.mult,
+			-- This is a localize function. Localize looks through the localization files, and translates it. It ensures your mod is able to be translated. I've left it out in most cases for clarity reasons, but this one is required, because it has a variable.
+			-- This specifically looks in the localization table for the 'variable' category, specifically under 'v_dictionary' in 'localization/en-us.lua', and searches that table for 'a_mult', which is short for add mult.
+			-- In the localization file, a_mult = "+#1#". Like with loc_vars, the vars in this message variable replace the #1#.
+			message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
+			-- Without this, the mult will stil be added, but it'll just show as a blank red square that doesn't have any text.
+		}
+		end
+		if context.individual and context.cardarea == G.play then
+		-- :get_id tests for the rank of the card. Other than 2-10, Jack is 11, Queen is 12, King is 13, and Ace is 14.
+		if context.other_card:get_id() == 4 then
+			-- Specifically returning to context.other_card is fine with multiple values in a single return value, chips/mult are different from chip_mod and mult_mod, and automatically come with a message which plays in order of return.
+			G.E_MANAGER:add_event(Event({
+				func = function()
+					play_sound("angry_mista")
+					return true
+				end,
+			}))
+			SMODS.eval_this(card, {
+				message = "Mista!",
+				colour = G.C.RED,
+				card = self
+			})
+			card.ability.extra.mult = card.ability.extra.mult * 4
+			if card.ability.extra.mult >= math.huge then
+			card.ability.extra.mult = 1.79769313486231570814527423732E308
+			SMODS.eval_this(card, {
+				message = "Too High!",
+				colour = G.C.RED,
+				card = self
+			})
+			end
+			return {
+			mult = card.ability.extra.mult,
+			card = context.other_card
+			}
+		end
+		end
+	end,
+	calc_dollar_bonus = function(self, card)
+		local bonus = card.ability.extra.mult
+		if bonus > 0 then return bonus end
+	end,
 }
 
 SMODS.Joker {
@@ -405,7 +475,7 @@ SMODS.Joker {
   },
   config = { extra = { mult = 4 } },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
   loc_vars = function(self, info_queue, card)
@@ -470,7 +540,7 @@ SMODS.Joker {
   --
   config = { extra = { mult = 4, namerand = "Gerio" } },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 1, y = 0 },
   cost = 7,
   loc_vars = function(self, info_queue, card)
@@ -541,7 +611,7 @@ SMODS.Joker {
 	--
 	config = { perishable_compat = false, extra = { scored_cash = 0, player_dead = false } },
 	rarity = 4,
-	atlas = 'geriolish_1',
+	atlas = 'gerio_geriolish_1',
 	pos = { x = 0, y = 1 },
 	cost = 7,
 	loc_vars = function(self, info_queue, card)
@@ -575,7 +645,7 @@ SMODS.Joker {
 			return {
 				saved = true,
 				colour = G.C.RED,
-				message = "No way I lose this game!"
+				message = localize("gerio_freepass_saved") -- "No way I lose this game!"
 			}
 		end
 	end,
@@ -602,7 +672,7 @@ SMODS.Joker {
   --
   config = { extra = { mult = 4 } },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 7,
   loc_vars = function(self, info_queue, card)
@@ -631,7 +701,7 @@ SMODS.Joker {
   },
   config = { extra = { tracked = {} } },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 7,
   update = function(self, card, dt)
@@ -674,7 +744,7 @@ SMODS.Consumable {
   },
   config = { extra = { mult = 4 } },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
   loc_vars = function(self, info_queue, card)
@@ -726,7 +796,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	use = function(self, card, context, copier)
@@ -766,7 +836,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	use = function(self, card, context, copier)
@@ -806,7 +876,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	use = function(self, card, context, copier)
@@ -845,7 +915,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	use = function(self, card, context, copier)
@@ -908,7 +978,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	use = function(self, card, context, copier)
@@ -952,7 +1022,7 @@ SMODS.Consumable {
   set = 'Spectral',
   loc_txt = locale,
   rarity = 4,
-  atlas = 'geriolish_1',
+  atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	use = function(self, card, context, copier)
@@ -984,6 +1054,39 @@ SMODS.Consumable {
 			end
 		end
 		return false
+	end,
+}
+
+SMODS.Consumable {
+  key = 'gerio_blueprinter',
+  set = 'Spectral',
+  loc_txt = {
+    name = 'Blueprinter',
+    text = {
+      "Use this card to",
+      "get Blueprint",
+      "to your deck",
+    }
+  },
+  rarity = 4,
+  atlas = 'Joker',
+  pos = { x = 0, y = 3 },
+  cost = 78,
+	use = function(self, card, context, copier)
+		G.E_MANAGER:add_event(Event({
+			func = function()
+				local card2 = create_card('Jokers', G.jokers,nil,nil,nil,nil, "j_blueprint")
+				card2:set_edition({negative = true}, true)
+				card2:add_to_deck()
+				G.jokers:emplace(card2)
+				card2:start_materialize()
+				return true
+			end
+		}))
+		return true
+	end,
+	can_use = function(self, card)
+		return true
 	end,
 }
 
@@ -1059,6 +1162,12 @@ function Back.apply_to_run(arg_56_0)
 				card:add_to_deck()
 				G.consumeables:emplace(card)
 				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_blueprinter")
+				card.ability.gerio_unbreakable = true
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
 
 				return true
 			end
@@ -1080,7 +1189,7 @@ function Back.apply_to_run(arg_56_0)
 				end
 				--sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
 				for _ = 1,16 do
-					create_playing_card({front = G.P_CARDS.Mista}, G.hand)
+					create_playing_card({front = G.P_CARDS.Mista}, G.deck)
 				end
 				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_mista")
 				card:set_eternal(true)
@@ -1263,15 +1372,15 @@ loc_def["ABSOLUTE"] = {
 
 local geriodecks = {}
 geriodecks["mista"] = SMODS.Deck:new("Anti-Mista Deck", "mista", {mista_hater = true}, {x = 0, y = 0}, loc_def["mista"])
-geriodecks["mista"]["atlas"] = "geriolish_1"
+geriodecks["mista"]["atlas"] = "gerio_geriolish_1"
 geriodecks["forkbomb"] = SMODS.Deck:new("Fork BOMB", "forkbomb", {forkbomb = true}, {x = 0, y = 1}, loc_def["forkbomb"])
-geriodecks["forkbomb"]["atlas"] = "geriolish_1"
+geriodecks["forkbomb"]["atlas"] = "gerio_geriolish_1"
 geriodecks["gerio"] = SMODS.Deck:new("geriogerio", "geriogerio", {geriogerio = true}, {x = 0, y = 1}, loc_def["gerio"])
-geriodecks["gerio"]["atlas"] = "geriolish_1"
+geriodecks["gerio"]["atlas"] = "gerio_geriolish_1"
 geriodecks["pinpin"] = SMODS.Deck:new("PINPIN", "pinpin", {pinpin = true}, {x = 0, y = 1}, loc_def["PINPIN"])
-geriodecks["pinpin"]["atlas"] = "geriolish_1"
+geriodecks["pinpin"]["atlas"] = "gerio_geriolish_1"
 geriodecks["absolutity"] = SMODS.Deck:new("ABSOLUTE", "absolutity", {absolutity = true}, {x = 0, y = 1}, loc_def["ABSOLUTE"])
-geriodecks["absolutity"]["atlas"] = "geriolish_1"
+geriodecks["absolutity"]["atlas"] = "gerio_geriolish_1"
 
 function SMODS.current_mod.process_loc_text()
     G.localization.descriptions.Joker.j_geriogerio_1972_geriolish.name = (math.random() >= 0.5 and "G" or "9")..(math.random() >= 0.5 and "e" or "3")..(math.random() >= 0.5 and "r" or "R")..(math.random() >= 0.5 and "i" or "1")..(math.random() >= 0.5 and "o" or "0") .. " Joker"
