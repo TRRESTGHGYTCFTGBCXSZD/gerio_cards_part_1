@@ -235,6 +235,18 @@ function eval_card(card, context)
 	end
 	return ret
 end
+local uc = Card.use_consumeable
+function Card:use_consumeable(area, copier)
+	local ggpn = G.GAME.probabilities.normal
+	if self.ability.gerio_baseball then
+		G.GAME.probabilities.normal = math.huge
+	end
+	local ret = uc(self, area, copier)
+	if self.ability.gerio_baseball then
+		G.GAME.probabilities.normal = ggpn
+	end
+	return ret
+end
 
 SMODS.Sticker{
 
@@ -402,7 +414,7 @@ SMODS.Joker {
   calculate = function(self, card, context)
     if context.joker_main then
       -- Tells the joker what to do. In this case, it pulls the value of mult from the config, and tells the joker to use that variable as the "mult_mod".
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_forkbomb")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_forkbomb")
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
@@ -418,7 +430,7 @@ SMODS.Joker {
     end
     if context.individual and context.cardarea == G.play then
       -- :get_id tests for the rank of the card. Other than 2-10, Jack is 11, Queen is 12, King is 13, and Ace is 14.
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_forkbomb")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_forkbomb")
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
@@ -439,7 +451,7 @@ SMODS.Joker {
   end,
   calc_dollar_bonus = function(self, card)
     local bonus = card.ability.extra.mult
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_forkbomb")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_forkbomb")
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
