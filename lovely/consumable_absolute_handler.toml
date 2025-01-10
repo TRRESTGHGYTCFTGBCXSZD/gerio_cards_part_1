@@ -1,0 +1,28 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = -10
+
+#intercepting the code would be fun, this is first time to use lovely overrides
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = "local card = e.config.ref_table"
+position = "after"
+payload = '''if card.ability.consumeable and card.ability.gerio_unbreakable then
+	local card2 = copy_card(card, nil, nil, area)
+	card2.ability.gerio_unbreakable = "bypass"
+	card = card2
+end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "local copy = copy_card(SUITS[suit_map[j]][i],nil, _scale)"
+position = "after"
+payload = '''if copy.ability.gerio_unbreakable then
+	copy.ability.gerio_unbreakable = "bypass"
+end'''
+match_indent = true
