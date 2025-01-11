@@ -27,3 +27,11 @@ payload = '''if copy.ability.gerio_unbreakable then
 	copy.ability.gerio_unbreakable = "bypass"
 end'''
 match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "cardarea.lua"
+pattern = "function CardArea:remove()"
+position = "after"
+payload = '''self.marked_for_removal = true'''
+match_indent = true

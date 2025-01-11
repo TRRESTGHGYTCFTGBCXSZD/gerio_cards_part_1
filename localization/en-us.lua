@@ -46,6 +46,14 @@ return {
 				}
 			},
 		},
+		Tarot={
+			c_death_shine={
+				name="Death",
+				text={
+					"Actually kills your run.",
+				},
+			},
+		},
 		Other = {
 			gerio_unbreakable_consumable = {
 				name = "Absolute",
@@ -59,12 +67,19 @@ return {
 					"Prevents from","Direct Removal Calls"
 				},
 			},
+			gerio_baseball = {
+				name = 'Baseball',
+				text = {
+					"INFINITY PERCENT TRIGGER LET'S GOOOO",
+				}
+			},
 		}
 	},
 	misc={
 		dictionary={
 			gerio_mista_four="You Moron!",
 			gerio_freepass_saved="No way I lose this game!",
+			gerio_too_high="Too High!",
 		},
 	},
 }

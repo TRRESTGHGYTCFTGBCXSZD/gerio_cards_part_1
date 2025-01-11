@@ -1,7 +1,7 @@
 --- STEAMODDED HEADER
 --- MOD_NAME: 1972 dio
 --- MOD_ID: geriogerio_1972
---- PREFIX: gerio
+--- PREFIX: gerioc1
 --- MOD_AUTHOR: [GerioSB]
 --- MOD_DESCRIPTION: F
 
@@ -10,6 +10,7 @@
 
 --to play mista's voicelines, it requires the sound, with directly calling love sound
 local mod_path = "" .. SMODS.current_mod.path
+
 --local angry_mista = love.audio.newSource(mod_path.."audio/angry_mista.wav", "static")
 SMODS.Sound{
 	key="angry_mista",
@@ -46,10 +47,12 @@ local exclude_popbob = {
 }
 
 local koichi = SMODS.current_mod
+local settei = koichi.config
 
 koichi.config_tab = function()
     return {n = G.UIT.ROOT, config = {r = 0.1, minw = 5, align = "cm", padding = 0.2, colour = G.C.BLACK}, nodes = {
-        create_toggle({label = "Black Label?", ref_table = koichi.config, ref_value = 'platinumpass', callback = function() SMODS.save_mod_config(koichi) end }),
+        create_toggle({label = "Black Label?", ref_table = settei, ref_value = 'platinumpass', callback = function() SMODS.save_mod_config(koichi) end }),
+        create_toggle({label = "Killer Death?", ref_table = settei, ref_value = 'death_really', callback = function() SMODS.save_mod_config(koichi) end }),
     }}
 end
 
@@ -166,9 +169,16 @@ SMODS.Suit{
 }
 
 --handling absolutes
+local function bypass_absolute_cond(card)
+	if card.ability.gerio_unbreakable == "bypass" or (card.area and card.area.marked_for_removal) then
+		return true
+	end
+	return false
+end
+
 local hooke = Card.start_dissolve
 function Card:start_dissolve(...)
-	if self.ability.gerio_unbreakable and (not (self.ability.gerio_unbreakable == "bypass")) then
+	if self.ability.gerio_unbreakable and (not bypass_absolute_cond(self)) then
 		SMODS.eval_this(self, {
 			message = localize('k_nope_ex')
 		})
@@ -178,7 +188,7 @@ function Card:start_dissolve(...)
 end
 local hooke = Card.shatter
 function Card:shatter(...)
-	if self.ability.gerio_unbreakable and (not (self.ability.gerio_unbreakable == "bypass")) then
+	if self.ability.gerio_unbreakable and (not bypass_absolute_cond(self)) then
 		SMODS.eval_this(self, {
 			message = localize('k_nope_ex')
 		})
@@ -188,7 +198,7 @@ function Card:shatter(...)
 end
 local hooke = Card.explode
 function Card:explode(...)
-	if self.ability.gerio_unbreakable and (not (self.ability.gerio_unbreakable == "bypass")) then
+	if self.ability.gerio_unbreakable and (not bypass_absolute_cond(self)) then
 		SMODS.eval_this(self, {
 			message = localize('k_nope_ex')
 		})
@@ -198,7 +208,7 @@ function Card:explode(...)
 end
 local hooke = Card.remove
 function Card:remove(...)
-	if self.ability.gerio_unbreakable and (not (self.ability.gerio_unbreakable == "bypass")) then
+	if self.ability.gerio_unbreakable and (not bypass_absolute_cond(self)) then
 		SMODS.eval_this(self, {
 			message = localize('k_nope_ex')
 		})
@@ -237,6 +247,13 @@ function Card:redeem(...)
 	else
 		hooke(self,...)
 	end
+end
+local hooke = Card.get_id
+function Card:get_id()
+    if G.GAME.Hyperstoneia then
+        return self.base.id
+    end
+    return hooke(self)
 end
 local ec = eval_card
 function eval_card(card, context)
@@ -300,7 +317,7 @@ SMODS.Sticker{
 
 	key = 'gerio_baseball',
 	loc_vars = function(self, info_queue, card)
-		return { key = "gerio_unbreakable" }
+		return { key = "gerio_baseball" }
 	end,
 	--[[loc_txt = {
 		name = 'Baseball',
@@ -386,7 +403,15 @@ G.P_CARDS["Mista"]["atlas"] = "gerio_geriolish_1"
 G.P_CARDS["Mista"]["name"] = "Mista Four"
 G.P_CARDS["Mista"]["value"] = "4"
 
-sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
+--sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
+
+SMODS.Rarity{
+	key = "gerio_unobtainium",
+	loc_txt = {
+		name = 'Unobtainium', -- used on rarity badge
+	},
+	pools = {}, -- you are not supposed to get this cards anyway
+}
 
 SMODS.Joker {
 	key = 'gerio_mista',
@@ -397,7 +422,7 @@ SMODS.Joker {
 		}
 	},
 	config = { extra = { mult = 4 } },
-	rarity = 4,
+	rarity = "gerio_unobtainium",
 	atlas = 'gerio_geriolish_1',
 	pos = { x = 0, y = 0 },
 	cost = 78,
@@ -437,7 +462,7 @@ SMODS.Joker {
 				end,
 			}))
 			SMODS.eval_this(card, {
-				message = "Mista!",
+				message = localize("gerio_mista_four"),
 				colour = G.C.RED,
 				card = self
 			})
@@ -445,7 +470,7 @@ SMODS.Joker {
 			if card.ability.extra.mult >= math.huge then
 			card.ability.extra.mult = 1.79769313486231570814527423732E308
 			SMODS.eval_this(card, {
-				message = "Too High!",
+				message = localize("gerio_too_high"),
 				colour = G.C.RED,
 				card = self
 			})
@@ -474,7 +499,7 @@ SMODS.Joker {
     }
   },
   config = { extra = { mult = 4 } },
-  rarity = 4,
+  rarity = 2,
   atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
@@ -539,7 +564,7 @@ SMODS.Joker {
   },
   --
   config = { extra = { mult = 4, namerand = "Gerio" } },
-  rarity = 4,
+  rarity = "gerio_unobtainium",
   atlas = 'gerio_geriolish_1',
   pos = { x = 1, y = 0 },
   cost = 7,
@@ -610,7 +635,7 @@ SMODS.Joker {
 	},
 	--
 	config = { perishable_compat = false, extra = { scored_cash = 0, player_dead = false } },
-	rarity = 4,
+	rarity = "gerio_unobtainium",
 	atlas = 'gerio_geriolish_1',
 	pos = { x = 0, y = 1 },
 	cost = 7,
@@ -671,7 +696,7 @@ SMODS.Joker {
   },
   --
   config = { extra = { mult = 4 } },
-  rarity = 4,
+  rarity = "gerio_unobtainium",
   atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 7,
@@ -700,7 +725,7 @@ SMODS.Joker {
     }
   },
   config = { extra = { tracked = {} } },
-  rarity = 4,
+  rarity = 3,
   atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 7,
@@ -730,6 +755,61 @@ SMODS.Joker {
 	end
   end,
 }
+
+SMODS.Joker {
+	key = 'gerio_hyperstoneia',
+	loc_txt = {
+		name = 'Hyperstoneia',
+		text = {
+		"{C:attention}Stone Cards{} have {C:attention}rank and suit{}","Each {C:attention}Stone Card{} gives {C:mult}x#1#{} and {C:mult}+#2#{} mult"
+		}
+	},
+	add_to_deck = function(self, card, from_debuff)
+		G.GAME.Hyperstoneia = true
+	end,
+	remove_from_deck = function(self, card, from_debuff)
+		G.GAME.Hyperstoneia = next(find_joker("gerio_hyperstoneia", true))
+	end,
+	config = { extra = { xmult = 2, mult = 6 } },
+	rarity = 4,
+	atlas = 'Joker',
+	pos = { x = 9, y = 0 },
+	cost = 78,
+	loc_vars = function(self, info_queue, card)
+		return { vars = { card.ability.extra.xmult, card.ability.extra.mult } }
+	end,
+	calculate = function(self, card, context)
+		if context.individual and context.cardarea == G.play then
+			if context.other_card.ability.effect == 'Stone Card' then --SERIOUSLY!? NO SMODS.get_enhancements() AND SMODS.has_enhancement()!?
+				SMODS.eval_this(context.other_card, {
+					Xmult_mod = card.ability.extra.xmult,
+					message = localize{type = 'variable', key = 'a_xmult', vars = {card.ability.extra.xmult}},
+					colour = G.C.RED,
+					card = context.other_card
+				})
+				return {
+				mult = card.ability.extra.mult,
+				card = context.other_card
+				}
+			end
+		end
+	end,
+}
+
+local hooke = SMODS.has_no_suit
+function SMODS.has_no_suit(card)
+	if card.ability.effect == 'Stone Card' and G.GAME.Hyperstoneia then
+		return false
+	end
+	return hooke(card)
+end
+local hooke = SMODS.has_no_rank
+function SMODS.has_no_rank(card)
+	if card.ability.effect == 'Stone Card' and G.GAME.Hyperstoneia then
+		return false
+	end
+	return hooke(card)
+end
 
 SMODS.Consumable {
   key = 'gerio_vaccumcleaner',
@@ -873,6 +953,8 @@ SMODS.Consumable {
       "get every consumables",
       "(including modded ones)",
       "to your deck",
+      "{C:inactive}(It's recommended to{}",
+      "{C:inactive}select with controller){}",
     }
   },
   rarity = 4,
@@ -1009,18 +1091,28 @@ local locale = {
       "INFINITY PERCENT TRIGGER LET'S GOOOO",
     }
   }
+local pootis = {}
 
 if SMODS.Mods["Cryptid"] then
-table.insert(locale.text, "{C:inactive}(higher trigger chance than Rigged){}")
+	pootis[152152] = {type="name_text", key = "cry_rigged", set = "Other"}
+	table.insert(locale.text, "{C:inactive}(higher trigger chance than #152152#){}")
 end
 if SMODS.Mods["SnowHolidayJokers"] then
-table.insert(locale.text, "{C:inactive}(higher trigger chance than AAAH?! It's Infinity!?){}")
+	pootis[153153] = {type="name_text", key = "j_infinityDice", set = "Joker"}
+	table.insert(locale.text, "{C:inactive}(higher trigger chance than #153153#){}")
 end
 
 SMODS.Consumable {
   key = 'gerio_baseball_sticker',
   set = 'Spectral',
   loc_txt = locale,
+	loc_vars = function(self, info_queue, card)
+		local putdispenserhere = {}
+		for r,t in pairs(pootis) do
+			putdispenserhere[r] = localize(t)
+		end
+		return { vars = putdispenserhere }
+	end,
   rarity = 4,
   atlas = 'gerio_geriolish_1',
   pos = { x = 0, y = 1 },
@@ -1064,10 +1156,14 @@ SMODS.Consumable {
     name = 'Blueprinter',
     text = {
       "Use this card to",
-      "get Blueprint",
+      "get #1#",
       "to your deck",
     }
   },
+	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue + 1] = { key = "j_blueprint", set = "Joker", vars = {} }
+		return { vars = { localize{type="name_text", key = "j_blueprint", set = "Joker"} } }
+	end,
   rarity = 4,
   atlas = 'Joker',
   pos = { x = 0, y = 3 },
@@ -1090,6 +1186,14 @@ SMODS.Consumable {
 	end,
 }
 
+death_calculate = 
+SMODS.Consumable:take_ownership("death", {
+	loc_vars = function(self, info_queue, card)
+		info_queue[#info_queue + 1] = { key = "j_blueprint", set = "Joker", vars = {} }
+		return { vars = { localize{type="name_text", key = "j_blueprint", set = "Joker"} } }
+	end,
+})
+
 local Backapply_to_runRef = Back.apply_to_run
 function Back.apply_to_run(arg_56_0)
 	Backapply_to_runRef(arg_56_0)
@@ -1111,7 +1215,7 @@ function Back.apply_to_run(arg_56_0)
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				for _ = 1,6,1 do
+				--[[for _ = 1,6,1 do
 				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_disabler")
 				card.ability.gerio_unbreakable = true
 				card:set_eternal(true)
@@ -1119,7 +1223,14 @@ function Back.apply_to_run(arg_56_0)
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				end
+				end]]
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_hyperstoneia")
+				card.ability.gerio_unbreakable = true
+				card:set_eternal(true)
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.jokers:emplace(card)
+				card:start_materialize()
 				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_vaccumcleaner")
 				card.ability.gerio_unbreakable = true
 				card:set_edition({negative = true}, true)

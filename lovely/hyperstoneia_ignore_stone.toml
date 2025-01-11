@@ -1,0 +1,38 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = -10
+
+#hyperstoneia turns stone cards into normal cards
+
+#[[patches]]
+#[patches.pattern]
+#target = "card.lua"
+#pattern = "self.ability.effect == 'Stone Card'"
+#position = "at"
+#payload = '''self.ability.effect == 'Stone Card' and (not (G.GAME and (not G.GAME.Hyperstoneia)))'''
+#match_indent = true
+#
+#[[patches]]
+#[patches.pattern]
+#target = "card.lua"
+#pattern = "self.ability.effect ~= 'Stone Card'"
+#position = "at"
+#payload = '''(self.ability.effect ~= 'Stone Card' or (not (G.GAME and (not G.GAME.Hyperstoneia))))'''
+#match_indent = true
+
+#how the fuck ignores the partital match
+
+[[patches]]
+[patches.regex]
+target = "card.lua"
+pattern = "self[.]ability[.]effect == 'Stone Card'"
+position = "at"
+payload = '''self.ability.effect == 'Stone Card' and (not (G.GAME and G.GAME.Hyperstoneia))'''
+
+[[patches]]
+[patches.regex]
+target = "card.lua"
+pattern = "self[.]ability[.]effect ~= 'Stone Card'"
+position = "at"
+payload = '''(self.ability.effect ~= 'Stone Card' or (not (G.GAME and (not G.GAME.Hyperstoneia))))'''
