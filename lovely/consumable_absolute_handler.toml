@@ -19,6 +19,14 @@ end'''
 match_indent = true
 
 [[patches]]
+[patches.pattern] #wow, it calls from e.config.ref_table, not card
+target = "functions/button_callbacks.lua"
+pattern = "e.config.ref_table:use_consumeable(area)"
+position = "at"
+payload = '''card:use_consumeable(area)'''
+match_indent = true
+
+[[patches]]
 [patches.pattern]
 target = "functions/UI_definitions.lua"
 pattern = "local copy = copy_card(SUITS[suit_map[j]][i],nil, _scale)"

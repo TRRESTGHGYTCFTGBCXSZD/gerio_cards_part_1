@@ -1,0 +1,16 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = -10
+
+#always negative should be powerful as metatables
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "function Card:update(dt)"
+position = "after"
+payload = '''if self.ability.gerio_negative then
+	self.gerio_forced_edition = {negative = true}
+end'''
+match_indent = true
