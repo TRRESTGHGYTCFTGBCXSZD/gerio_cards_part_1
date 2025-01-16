@@ -1,9 +1,4 @@
---- STEAMODDED HEADER
---- MOD_NAME: Gerio Cards Part 1
---- MOD_ID: gerio_cards_part_1
---- PREFIX: gerioc1
---- MOD_AUTHOR: [GerioSB]
---- MOD_DESCRIPTION: An First set of Gerio Cards. Usually Unbalanced.
+
 
 ----------------------------------------------
 ------------MOD CODE -------------------------
@@ -43,7 +38,7 @@ local vanilla_tarots = {
 }
 
 local exclude_popbob = {
-["j_gerio_forkbomb"] = true,
+["j_gerioc1_forkbomb"] = true,
 }
 
 local koichi = SMODS.current_mod
@@ -52,35 +47,35 @@ local settei = koichi.config
 koichi.config_tab = function()
     return {n = G.UIT.ROOT, config = {r = 0.1, minw = 5, align = "cm", padding = 0.2, colour = G.C.BLACK}, nodes = {
         create_toggle({label = "Black Label?", ref_table = settei, ref_value = 'platinumpass', callback = function() SMODS.save_mod_config(koichi) end }),
-        create_toggle({label = "Killer Death?", ref_table = settei, ref_value = 'death_really', callback = function() SMODS.save_mod_config(koichi) end }),
+        create_toggle({label = "Killer Death? (requires restart)", ref_table = settei, ref_value = 'death_really', callback = function() SMODS.save_mod_config(koichi) end }),
     }}
 end
 
 SMODS.Atlas {
-  -- Key for code to find it with
-  key = "gerio_p1_geriolish_1",
-  -- The name of the file, for the code to pull the atlas from
-  path = "geriolish.png",
-  -- Width of each sprite in 1x size
-  px = 71,
-  -- Height of each sprite in 1x size
-  py = 95
-}
-
-SMODS.Atlas {
-  -- Key for code to find it with
-  key = "gerio_p1_gerio_cards",
-  -- The name of the file, for the code to pull the atlas from
-  path = "gerio_skin.png",
-  -- Width of each sprite in 1x size
-  px = 71,
-  -- Height of each sprite in 1x size
-  py = 95
+	-- Key for code to find it with
+	key = "geriolish_1",
+	-- The name of the file, for the code to pull the atlas from
+	path = "geriolish.png",
+	-- Width of each sprite in 1x size
+	px = 71,
+	-- Height of each sprite in 1x size
+	py = 95
 }
 
 SMODS.Atlas {
 	-- Key for code to find it with
-	key = "gerio_p1_gerio_edge_stickers",
+	key = "gerio_cards",
+	-- The name of the file, for the code to pull the atlas from
+	path = "gerio_skin.png",
+	-- Width of each sprite in 1x size
+	px = 71,
+	-- Height of each sprite in 1x size
+	py = 95
+}
+
+SMODS.Atlas {
+	-- Key for code to find it with
+	key = "edge_stickers",
 	-- The name of the file, for the code to pull the atlas from
 	path = "gerio_refurbished_stickers.png",
 	-- Width of each sprite in 1x size
@@ -106,7 +101,32 @@ local function tabledump(o)
 	end
 end
 
-local function tabledeepcopy(orig)
+local function tabledump_beautified(o,deepness)
+	if type(o) == 'table' then
+		local s = '{\n'
+		for _=1,deepness do
+			s = s..'	'
+		end
+		for k,v in pairs(o) do
+			if type(k) ~= 'number' then k = '"'..k..'"' end
+			s = s .. '['..k..'] = ' .. tabledump_beautified(v,deepness+1) .. ',\n'
+			for _=1,deepness do
+				s = s..'	'
+			end
+		end
+		return s .. '}'
+	else
+		if type(o) == 'string' then
+		return "\""..tostring(o).."\""
+		else
+		return tostring(o)
+		end
+	end
+end
+
+local tabledeepcopy = copy_table
+
+--[[function(orig)
 	local orig_type = type(orig)
 	local copy
 	if orig_type == 'table' then
@@ -115,6 +135,23 @@ local function tabledeepcopy(orig)
 			copy[tabledeepcopy(orig_key)] = tabledeepcopy(orig_value)
 		end
 		setmetatable(copy, tabledeepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
+end]]
+
+function copy_table(orig,looked_tables) -- original copy table dosen't detect cyclic references
+	local orig_type = type(orig)
+	if not looked_tables then looked_tables = {} end
+	local copy
+	if orig_type == 'table' and not looked_tables[orig] then
+		copy = {}
+		looked_tables[orig] = true
+		for orig_key, orig_value in next, orig, nil do
+			copy[copy_table(orig_key,looked_tables)] = copy_table(orig_value,looked_tables)
+		end
+		setmetatable(copy, copy_table(getmetatable(orig)))
 	else -- number, string, boolean, etc
 		copy = orig
 	end
@@ -136,12 +173,12 @@ local function find_pointing_table(orig)
 	return copy
 end
 
-SMODS.Suit{
+--[[SMODS.Suit{
 	key = 'Mista',
 	card_key = 'MISTA',
 	hidden = false,
-	lc_atlas = 'gerio_p1_gerio_cards',
-	hc_atlas = 'gerio_p1_gerio_cards',
+	lc_atlas = 'gerioc1_gerio_cards',
+	hc_atlas = 'gerioc1_gerio_cards',
 
 	lc_ui_atlas = 'ui_1',
 	hc_ui_atlas = 'ui_2',
@@ -166,7 +203,7 @@ SMODS.Suit{
 			return false
 	end
 
-}
+}]]
 
 --handling absolutes
 local function bypass_absolute_cond(card)
@@ -227,7 +264,7 @@ function Card:can_sell_card(...)
 end
 
 --extra card codes
-local hooke = Card.redeem
+--[[local hooke = Card.redeem
 function Card:redeem(...)
 	if self.quick_redeem then
 		if self.ability.set == "Voucher" then
@@ -248,7 +285,7 @@ function Card:redeem(...)
 	else
 		hooke(self,...)
 	end
-end
+end]]
 local hooke = Card.get_id
 function Card:get_id()
     if G.GAME.Hyperstoneia then
@@ -296,7 +333,6 @@ function Card:set_edition(edition, immediate, silent, ...)
 end
 
 SMODS.Sticker{
-
 	key = 'gerio_unbreakable',
 	prefix_config = { key = false },
 	loc_vars = function(self, info_queue, card)
@@ -313,7 +349,7 @@ SMODS.Sticker{
 		}
 	},]]
 	default_compat = true,
-	atlas = "gerio_p1_gerio_edge_stickers",
+	atlas = "gerioc1_edge_stickers",
 	pos = { x = 1, y = 0 },
 	--[[compat_exceptions = {
 		eternal_compat = false,
@@ -330,7 +366,6 @@ SMODS.Sticker{
 }
 
 SMODS.Sticker{
-
 	key = 'gerio_baseball',
 	loc_vars = function(self, info_queue, card)
 		return { key = "gerio_baseball" }
@@ -342,7 +377,7 @@ SMODS.Sticker{
 		}
 	},]]
 	default_compat = true,
-	atlas = "gerio_p1_gerio_edge_stickers",
+	atlas = "gerioc1_edge_stickers",
 	pos = { x = 2, y = 0 },
 	badge_colour = HEX("EC97CD"),
 	draw = function(self, card) --draw flat
@@ -352,7 +387,6 @@ SMODS.Sticker{
 }
 
 SMODS.Sticker{
-
 	key = 'gerio_negative',
 	loc_txt = {
 		name = 'Always Negative',
@@ -361,7 +395,7 @@ SMODS.Sticker{
 		}
 	},
 	default_compat = true,
-	atlas = "gerio_p1_gerio_edge_stickers",
+	atlas = "gerioc1_edge_stickers",
 	pos = { x = 2, y = 1 },
 	badge_colour = HEX("000000"),
 	draw = function(self, card) --draw flat
@@ -371,7 +405,7 @@ SMODS.Sticker{
 }
 
 SMODS.Sticker:take_ownership("eternal", {
-	atlas = "gerio_p1_gerio_edge_stickers",
+	atlas = "gerioc1_edge_stickers",
 	pos = { x = 0, y = 0 },
 	draw = function(self, card) --draw flat
 		G.shared_stickers[self.key].role.draw_major = card
@@ -379,7 +413,7 @@ SMODS.Sticker:take_ownership("eternal", {
 	end,
 })
 SMODS.Sticker:take_ownership("perishable", {
-	atlas = "gerio_p1_gerio_edge_stickers",
+	atlas = "gerioc1_edge_stickers",
 	pos = { x = 0, y = 2 },
 	draw = function(self, card) --draw flat
 		G.shared_stickers[self.key].role.draw_major = card
@@ -387,7 +421,7 @@ SMODS.Sticker:take_ownership("perishable", {
 	end,
 })
 SMODS.Sticker:take_ownership("rental", {
-	atlas = "gerio_p1_gerio_edge_stickers",
+	atlas = "gerioc1_edge_stickers",
 	pos = { x = 1, y = 2 },
 	draw = function(self, card) --draw flat
 		G.shared_stickers[self.key].role.draw_major = card
@@ -395,7 +429,7 @@ SMODS.Sticker:take_ownership("rental", {
 	end,
 })
 SMODS.Sticker:take_ownership("pinned", {
-	atlas = "gerio_p1_gerio_edge_stickers",
+	atlas = "gerioc1_edge_stickers",
 	pos = { x = 1, y = 1 },
 	badge_colour = HEX("AAAAAA"),
 	draw = function(self, card) --draw flat
@@ -404,11 +438,52 @@ SMODS.Sticker:take_ownership("pinned", {
 	end,
 })
 
+SMODS.Shader {
+    key = 'wobbly',
+    path = 'wobbly.fs',
+}
+
+SMODS.Edition{
+	key = 'gerio_mista',
+	loc_txt = {
+		name = 'MISTA',
+		label = 'MISTA',
+		text = {
+			"FOUR IS UNLUCKY"
+		}
+	},
+	-- Stop shadow from being rendered under the card
+	disable_shadow = false,
+	-- Stop extra layer from being rendered below the card.
+	-- For edition that modify shape or transparency of the card.
+	disable_base_shader = true,
+	shader = "gerioc1_wobbly",
+	discovered = true,
+	unlocked = true,
+	config = {},
+	in_shop = false,
+	weight = 0,
+	extra_cost = 6,
+	apply_to_float = true,
+	sound = { sound = "gerioc1_angry_mista", per = 1, vol = 1 },
+	loc_vars = function(self)
+		return { vars = {} }
+	end,
+	on_apply = function(card)
+		if not card.ability.extra then return end
+		for g,_ in pairs(card.ability.extra) do
+			if type(card.ability.extra[g]) == "number" then
+				card.ability.extra[g] = 4
+			end
+		end
+	end,
+}
+
 SMODS.DeckSkin{
 
 	key = 'gerio_poker1',
-	lc_atlas = 'gerio_p1_gerio_cards',
-	hc_atlas = 'gerio_p1_gerio_cards',
+	lc_atlas = 'gerioc1_gerio_cards',
+	hc_atlas = 'gerioc1_gerio_cards',
 	loc_txt = {
 		["en-us"] = 'GerioSB Programmer Art',
 	},
@@ -420,8 +495,8 @@ SMODS.DeckSkin{
 SMODS.DeckSkin{
 
 	key = 'gerio_poker2',
-	lc_atlas = 'gerio_p1_gerio_cards',
-	hc_atlas = 'gerio_p1_gerio_cards',
+	lc_atlas = 'gerioc1_gerio_cards',
+	hc_atlas = 'gerioc1_gerio_cards',
 	loc_txt = {
 		["en-us"] = 'GerioSB Programmer Art',
 	},
@@ -433,8 +508,8 @@ SMODS.DeckSkin{
 SMODS.DeckSkin{
 
 	key = 'gerio_poker3',
-	lc_atlas = 'gerio_p1_gerio_cards',
-	hc_atlas = 'gerio_p1_gerio_cards',
+	lc_atlas = 'gerioc1_gerio_cards',
+	hc_atlas = 'gerioc1_gerio_cards',
 	loc_txt = {
 		["en-us"] = 'GerioSB Programmer Art',
 	},
@@ -446,8 +521,8 @@ SMODS.DeckSkin{
 SMODS.DeckSkin{
 
 	key = 'gerio_poker4',
-	lc_atlas = 'gerio_p1_gerio_cards',
-	hc_atlas = 'gerio_p1_gerio_cards',
+	lc_atlas = 'gerioc1_gerio_cards',
+	hc_atlas = 'gerioc1_gerio_cards',
 	loc_txt = {
 		["en-us"] = 'GerioSB Programmer Art',
 	},
@@ -457,17 +532,17 @@ SMODS.DeckSkin{
 
 }
 
-G.P_CARDS["Mista"] = tabledeepcopy(G.P_CARDS["S_4"])
+--[[G.P_CARDS["Mista"] = tabledeepcopy(G.P_CARDS["S_4"])
 G.P_CARDS["Mista"]["suit"] = "Mista"
 G.P_CARDS["Mista"]["pos"] = {["x"] = 2, ["y"] = 0}
-G.P_CARDS["Mista"]["atlas"] = "gerio_p1_geriolish_1"
+G.P_CARDS["Mista"]["atlas"] = "gerioc1_geriolish_1"
 G.P_CARDS["Mista"]["name"] = "Mista Four"
-G.P_CARDS["Mista"]["value"] = "4"
+G.P_CARDS["Mista"]["value"] = "4"]]
 
 --sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
 
 SMODS.Rarity{
-	key = "gerio_unobtainium",
+	key = "unobtainium",
 	loc_txt = {
 		name = 'Unobtainium', -- used on rarity badge
 	},
@@ -475,7 +550,7 @@ SMODS.Rarity{
 }
 
 SMODS.Joker {
-	key = 'gerio_mista',
+	key = 'mista',
 	loc_txt = {
 		name = 'Mista HATES THAT NUMBER',
 		text = {
@@ -483,8 +558,8 @@ SMODS.Joker {
 		}
 	},
 	config = { extra = { mult = 4 } },
-	rarity = "gerio_unobtainium",
-	atlas = 'gerio_p1_geriolish_1',
+	rarity = "gerioc1_unobtainium",
+	atlas = 'gerioc1_geriolish_1',
 	pos = { x = 0, y = 0 },
 	cost = 78,
 	unlocked = true,
@@ -521,7 +596,7 @@ SMODS.Joker {
 			-- Specifically returning to context.other_card is fine with multiple values in a single return value, chips/mult are different from chip_mod and mult_mod, and automatically come with a message which plays in order of return.
 			G.E_MANAGER:add_event(Event({
 				func = function()
-					play_sound("angry_mista")
+					play_sound("gerioc1_angry_mista")
 					return true
 				end,
 			}))
@@ -553,7 +628,7 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
-  key = 'gerio_forkbomb',
+  key = 'forkbomb',
   loc_txt = {
     name = 'Fork Bomb',
     text = {
@@ -564,7 +639,7 @@ SMODS.Joker {
   },
   config = { extra = { mult = 4 } },
   rarity = 2,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
@@ -622,7 +697,7 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
-  key = 'gerio_geriolish',
+  key = 'geriolish',
   loc_txt = {
     name = "Joker2Joker",
     text = {
@@ -631,8 +706,8 @@ SMODS.Joker {
   },
   --
   config = { extra = { mult = 4, namerand = "Gerio" } },
-  rarity = "gerio_unobtainium",
-  atlas = 'gerio_p1_geriolish_1',
+  rarity = "gerioc1_unobtainium",
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 1, y = 0 },
   cost = 7,
 	unlocked = true,
@@ -696,7 +771,7 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
-	key = 'gerio_permanentfreepass',
+	key = 'permanentfreepass',
 	loc_txt = {
 		name = "Permanent Free Pass",
 		text = {
@@ -705,8 +780,8 @@ SMODS.Joker {
 	},
 	--
 	config = { perishable_compat = false, extra = { scored_cash = 0, player_dead = false } },
-	rarity = "gerio_unobtainium",
-	atlas = 'gerio_p1_geriolish_1',
+	rarity = "gerioc1_unobtainium",
+	atlas = 'gerioc1_geriolish_1',
 	pos = { x = 0, y = 1 },
 	cost = 7,
 	unlocked = true,
@@ -767,7 +842,7 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
-  key = 'gerio_discardplus',
+  key = 'discardplus',
   loc_txt = {
     name = "Discard+",
     text = {
@@ -776,8 +851,8 @@ SMODS.Joker {
   },
   --
   config = { extra = { mult = 4 } },
-  rarity = "gerio_unobtainium",
-  atlas = 'gerio_p1_geriolish_1',
+  rarity = "gerioc1_unobtainium",
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 7,
 	unlocked = true,
@@ -800,7 +875,7 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
-  key = 'gerio_disabler',
+  key = 'disabler',
   loc_txt = {
     name = "Disabler",
     text = {
@@ -809,7 +884,7 @@ SMODS.Joker {
   },
   config = { extra = { tracked = {} } },
   rarity = 3,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 7,
 	unlocked = true,
@@ -843,7 +918,7 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
-	key = 'gerio_hyperstoneia',
+	key = 'hyperstoneia',
 	loc_txt = {
 		name = 'Hyperstoneia',
 		text = {
@@ -858,7 +933,11 @@ SMODS.Joker {
 	end,
 	config = { extra = { xmult = 2, mult = 6 } },
 	rarity = 4,
-	atlas = 'Joker',
+	--atlas = 'gerioc1_geriolish_1',
+	--[[set_sprites = function(self, card, front)
+		card.children.center.atlas = G.ASSET_ATLAS["Joker"]
+		card.children.center:set_sprite_pos(self.pos)
+	end,]]
 	pos = { x = 9, y = 0 },
 	cost = 78,
 	unlocked = true,
@@ -901,7 +980,7 @@ function SMODS.has_no_rank(card)
 end
 
 SMODS.Consumable {
-  key = 'gerio_vaccumcleaner',
+  key = 'vaccumcleaner',
   set = 'Spectral',
   loc_txt = {
     name = 'Vaccum Cleaner',
@@ -913,7 +992,7 @@ SMODS.Consumable {
   },
   config = { extra = { mult = 4 } },
   rarity = 4,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
@@ -956,7 +1035,7 @@ SMODS.Consumable {
 }
 
 SMODS.Consumable {
-  key = 'gerio_spectral_dumber',
+  key = 'spectral_dumber',
   set = 'Spectral',
   loc_txt = {
     name = 'Spectral Pack Ticket',
@@ -967,7 +1046,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
@@ -996,7 +1075,7 @@ SMODS.Consumable {
 }
 
 SMODS.Consumable {
-  key = 'gerio_popbob',
+  key = 'joker_popbob',
   set = 'Spectral',
   loc_txt = {
     name = 'Joker popbob',
@@ -1009,7 +1088,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
@@ -1039,7 +1118,7 @@ SMODS.Consumable {
 }
 
 SMODS.Consumable {
-  key = 'gerio_consumable_popbob',
+  key = 'consumable_popbob',
   set = 'Spectral',
   loc_txt = {
     name = 'Consumable popbob',
@@ -1053,7 +1132,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
@@ -1083,7 +1162,7 @@ SMODS.Consumable {
 }
 
 SMODS.Consumable {
-  key = 'gerio_voucher_popbob',
+  key = 'voucher_popbob',
   set = 'Spectral',
   loc_txt = {
     name = 'Voucher popbob',
@@ -1094,7 +1173,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
@@ -1115,7 +1194,7 @@ SMODS.Consumable {
 					for h,_ in pairs(G.P_CENTERS) do
 						if not exclude_popbob[h] then
 							if string.sub(h,1,1) == "v" then
-								local card2 = create_card("Voucher", area, nil, nil, nil, nil, h)
+								--[[local card2 = create_card("Voucher", area, nil, nil, nil, nil, h)
 								card2.cost = 0
 								card2:add_to_deck()
 								area:emplace(card2)
@@ -1130,6 +1209,15 @@ SMODS.Consumable {
 									delay = 0,
 									func = function()
 										card2:start_dissolve()
+										return true
+									end,
+								}))]]
+								G.GAME.used_vouchers[h] = true
+								G.E_MANAGER:add_event(Event({
+									trigger = "after",
+									delay = 0,
+									func = function()
+										Card.apply_to_run(nil, G.P_CENTERS[h])
 										return true
 									end,
 								}))
@@ -1149,7 +1237,7 @@ SMODS.Consumable {
 local suits = {"S","D","H","C"}
 
 SMODS.Consumable {
-  key = 'gerio_standard_popbob',
+  key = 'standard_popbob',
   set = 'Spectral',
   loc_txt = {
     name = 'Standard Set',
@@ -1159,7 +1247,7 @@ SMODS.Consumable {
     }
   },
   rarity = 4,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
@@ -1204,7 +1292,7 @@ if SMODS.Mods["SnowHolidayJokers"] then
 end
 
 SMODS.Consumable {
-  key = 'gerio_baseball_sticker',
+  key = 'baseball_sticker',
   set = 'Spectral',
   loc_txt = locale,
 	loc_vars = function(self, info_queue, card)
@@ -1215,20 +1303,26 @@ SMODS.Consumable {
 		return { vars = putdispenserhere }
 	end,
   rarity = 4,
-  atlas = 'gerio_p1_geriolish_1',
+  atlas = 'gerioc1_geriolish_1',
   pos = { x = 0, y = 1 },
   cost = 78,
 	unlocked = true,
 	discovered = true,
 	use = function(self, card, context, copier)
 		for _,h in pairs(G.hand.highlighted) do
-			h.ability.gerio_baseball = true
+			if h ~= card then
+				h.ability.gerio_baseball = true
+			end
 		end
 		for _,h in pairs(G.jokers.highlighted) do
-			h.ability.gerio_baseball = true
+			if h ~= card then
+				h.ability.gerio_baseball = true
+			end
 		end
 		for _,h in pairs(G.consumeables.highlighted) do
-			h.ability.gerio_baseball = true
+			if h ~= card then
+				h.ability.gerio_baseball = true
+			end
 		end
 		return true
 	end,
@@ -1253,24 +1347,28 @@ SMODS.Consumable {
 }
 
 SMODS.Consumable {
-  key = 'gerio_blueprinter',
-  set = 'Spectral',
-  loc_txt = {
-    name = 'Blueprinter',
-    text = {
-      "Use this card to",
-      "get #1#",
-      "to your deck",
-    }
-  },
+	key = 'blueprinter',
+	set = 'Spectral',
+	loc_txt = {
+		name = 'Blueprinter',
+		text = {
+			"Use this card to",
+			"get #1#",
+			"to your deck",
+		}
+	},
 	loc_vars = function(self, info_queue, card)
 		info_queue[#info_queue + 1] = { key = "j_blueprint", set = "Joker", vars = {} }
 		return { vars = { localize{type="name_text", key = "j_blueprint", set = "Joker"} } }
 	end,
-  rarity = 4,
-  atlas = 'Joker',
-  pos = { x = 0, y = 3 },
-  cost = 78,
+	set_sprites = function(self, card, front)
+		card.children.center.atlas = G.ASSET_ATLAS["Joker"]
+		card.children.center:set_sprite_pos(self.pos)
+	end,
+	rarity = 4,
+	--atlas = 'gerioc1_geriolish_1',
+	pos = { x = 0, y = 3 },
+	cost = 78,
 	unlocked = true,
 	discovered = true,
 	use = function(self, card, context, copier)
@@ -1291,22 +1389,241 @@ SMODS.Consumable {
 	end,
 }
 
-death_calculate = 
-SMODS.Consumable:take_ownership("death", {
+SMODS.Consumable {
+  key = 'mistafier',
+  set = 'Spectral',
+  loc_txt = {
+    name = 'Mistafier',
+    text = {
+      "44444444444",
+    }
+  },
 	loc_vars = function(self, info_queue, card)
-		info_queue[#info_queue + 1] = { key = "j_blueprint", set = "Joker", vars = {} }
-		return { vars = { localize{type="name_text", key = "j_blueprint", set = "Joker"} } }
+		local putdispenserhere = {}
+		for r,t in pairs(pootis) do
+			putdispenserhere[r] = localize(t)
+		end
+		return { vars = putdispenserhere }
 	end,
-})
+  rarity = 4,
+  atlas = 'gerioc1_geriolish_1',
+  pos = { x = 0, y = 0 },
+  cost = 78,
+	unlocked = true,
+	discovered = true,
+	use = function(self, card, context, copier)
+		for _,h in pairs(G.hand.highlighted) do
+			if h ~= card then
+				h:set_edition({gerioc1_gerio_mista = true}, true)
+			end
+		end
+		for _,h in pairs(G.jokers.highlighted) do
+			if h ~= card then
+				h:set_edition({gerioc1_gerio_mista = true}, true)
+			end
+		end
+		for _,h in pairs(G.consumeables.highlighted) do
+			if h ~= card then
+				h:set_edition({gerioc1_gerio_mista = true}, true)
+			end
+		end
+		return true
+	end,
+	can_use = function(self, card)
+		for _,h in pairs(G.hand.highlighted) do
+			if h ~= card then
+				return true
+			end
+		end
+		for _,h in pairs(G.jokers.highlighted) do
+			if h ~= card then
+				return true
+			end
+		end
+		for _,h in pairs(G.consumeables.highlighted) do
+			if h ~= card then
+				return true
+			end
+		end
+		return false
+	end,
+}
+
+SMODS.Consumable {
+	key = 'pullerist',
+	set = 'Spectral',
+	loc_txt = {
+		name = 'Puller',
+		text = {
+			"PULL YO DECK TO HANDO, EVEN DISCARD",
+		}
+	},
+	rarity = 4,
+	atlas = 'gerioc1_geriolish_1',
+	pos = { x = 0, y = 1 },
+	cost = 78,
+	unlocked = true,
+	discovered = true,
+	use = function(self, card, context, copier)
+		G.E_MANAGER:add_event(Event({
+			func = function()
+				local yoncard = {}
+				for _,h in pairs(G.deck.cards) do
+					yoncard[#yoncard+1]=h
+				end
+				for _,h in pairs(yoncard) do
+					G.hand:emplace(G.deck:remove_card(h))
+				end
+				local yoncard = {}
+				for _,h in pairs(G.discard.cards) do
+					yoncard[#yoncard+1]=h
+				end
+				for _,h in pairs(yoncard) do
+					G.hand:emplace(G.discard:remove_card(h))
+				end
+				return true
+			end
+		}))
+		return true
+	end,
+	can_use = function(self, card)
+		return true
+	end,
+}
+
+if settei.death_really then
+	SMODS.Consumable:take_ownership("death", {
+		loc_vars = function(self, info_queue, card)
+			return { key = "c_death_shine" }
+		end,
+		use = function(self, card, context, copier)
+			G.E_MANAGER:add_event(Event({
+				func = function()
+					attention_text({
+						text = localize('gerio_killerdeath_line1'),
+						scale = 1,
+						hold = 4,
+						major = card,
+						backdrop_colour = G.C.SECONDARY_SET.Planet,
+						align = (
+							G.STATE == G.STATES.TAROT_PACK
+							or G.STATE == G.STATES.SPECTRAL_PACK
+							or G.STATE == G.STATES.SMODS_BOOSTER_OPENED
+						)
+								and "tm"
+							or "cm",
+						offset = {
+							x = 0,
+							y = -1.5,
+						},
+						silent = true,
+					})
+					return true
+				end
+			}))
+			G.E_MANAGER:add_event(Event({
+				trigger = "after",
+				delay = 1,
+				func = function()
+					attention_text({
+						text = localize('gerio_killerdeath_line2'),
+						scale = 1,
+						hold = 3,
+						major = card,
+						backdrop_colour = G.C.SECONDARY_SET.Planet,
+						align = (
+							G.STATE == G.STATES.TAROT_PACK
+							or G.STATE == G.STATES.SPECTRAL_PACK
+							or G.STATE == G.STATES.SMODS_BOOSTER_OPENED
+						)
+								and "tm"
+							or "cm",
+						offset = {
+							x = 0,
+							y = -0.5,
+						},
+						silent = true,
+					})
+					return true
+				end
+			}))
+			G.E_MANAGER:add_event(Event({
+				trigger = "after",
+				delay = 1,
+				func = function()
+					attention_text({
+						text = localize('gerio_killerdeath_line3'),
+						scale = 0.7,
+						hold = 2,
+						major = card,
+						backdrop_colour = G.C.SECONDARY_SET.Planet,
+						align = (
+							G.STATE == G.STATES.TAROT_PACK
+							or G.STATE == G.STATES.SPECTRAL_PACK
+							or G.STATE == G.STATES.SMODS_BOOSTER_OPENED
+						)
+								and "tm"
+							or "cm",
+						offset = {
+							x = 0,
+							y = 0.5,
+						},
+						silent = true,
+					})
+					return true
+				end
+			}))
+			G.E_MANAGER:add_event(Event({
+				trigger = "after",
+				delay = 1,
+				func = function()
+					attention_text({
+						text = localize('gerio_killerdeath_line4'),
+						scale = 1.3,
+						hold = 1,
+						major = card,
+						backdrop_colour = G.C.SECONDARY_SET.Planet,
+						align = (
+							G.STATE == G.STATES.TAROT_PACK
+							or G.STATE == G.STATES.SPECTRAL_PACK
+							or G.STATE == G.STATES.SMODS_BOOSTER_OPENED
+						)
+								and "tm"
+							or "cm",
+						offset = {
+							x = 0,
+							y = 1.5,
+						},
+						silent = true,
+					})
+					return true
+				end
+			}))
+			G.E_MANAGER:add_event(Event({
+				trigger = "after",
+				delay = 1,
+				func = function()
+					G.STATE = G.STATES.GAME_OVER G.STATE_COMPLETE = false
+					return true
+				end
+			}))
+			return true
+		end,
+		can_use = function(self, card)
+			return true
+		end,
+	})
+end
+
 
 local Backapply_to_runRef = Back.apply_to_run
 function Back.apply_to_run(arg_56_0)
 	Backapply_to_runRef(arg_56_0)
 
-	if koichi.config.platinumpass then
+	if settei.platinumpass then
 		G.E_MANAGER:add_event(Event({
 			func = function()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_permanentfreepass")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_permanentfreepass")
 				card.ability.gerio_unbreakable = true
 				card.ability.gerio_negative = true
 				card:update()
@@ -1315,7 +1632,7 @@ function Back.apply_to_run(arg_56_0)
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_discardplus")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_discardplus")
 				card.ability.gerio_unbreakable = true
 				card.ability.gerio_negative = true
 				card:update()
@@ -1325,7 +1642,7 @@ function Back.apply_to_run(arg_56_0)
 				G.jokers:emplace(card)
 				card:start_materialize()
 				--[[for _ = 1,6,1 do
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_disabler")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_disabler")
 				card.ability.gerio_unbreakable = true
 				card:set_eternal(true)
 				card:set_edition({negative = true}, true)
@@ -1333,7 +1650,7 @@ function Back.apply_to_run(arg_56_0)
 				G.jokers:emplace(card)
 				card:start_materialize()
 				end]]
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_hyperstoneia")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_hyperstoneia")
 				card.ability.gerio_unbreakable = true
 				card.ability.gerio_negative = true
 				card:update()
@@ -1341,8 +1658,89 @@ function Back.apply_to_run(arg_56_0)
 				card:set_edition({negative = true}, true)
 				card:add_to_deck()
 				G.jokers:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_vaccumcleaner")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_spectral_dumber")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_joker_popbob")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_consumable_popbob")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_voucher_popbob")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_standard_popbob")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_baseball_sticker")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_blueprinter")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_pullerist")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
+				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc1_mistafier")
+				card.ability.gerio_unbreakable = true
+				card.ability.gerio_negative = true
+				card:update()
+				card:set_edition({negative = true}, true)
+				card:add_to_deck()
+				G.consumeables:emplace(card)
+				card:start_materialize()
 				if SMODS.Mods["gerio_cards_part_2"] then
-					card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc2_gerio_bamtris")
+					card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc2_bamtris")
 					card.ability.gerio_unbreakable = true
 					card.ability.gerio_negative = true
 					card:update()
@@ -1351,72 +1749,23 @@ function Back.apply_to_run(arg_56_0)
 					card:add_to_deck()
 					G.jokers:emplace(card)
 					card:start_materialize()
+					card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc2_tetra_blocker")
+					card.ability.gerio_unbreakable = true
+					card.ability.gerio_negative = true
+					card:update()
+					card:set_edition({negative = true}, true)
+					card:add_to_deck()
+					G.consumeables:emplace(card)
+					card:start_materialize()
+					card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerioc2_woot_bamtris")
+					card.ability.gerio_unbreakable = true
+					card.ability.gerio_negative = true
+					card:update()
+					card:set_edition({negative = true}, true)
+					card:add_to_deck()
+					G.consumeables:emplace(card)
+					card:start_materialize()
 				end
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_vaccumcleaner")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_spectral_dumber")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_popbob")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_consumable_popbob")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_voucher_popbob")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_standard_popbob")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_baseball_sticker")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
-				card = create_card('Consumeables', G.consumeables,nil,nil,nil,nil, "c_gerio_blueprinter")
-				card.ability.gerio_unbreakable = true
-				card.ability.gerio_negative = true
-				card:update()
-				card:set_edition({negative = true}, true)
-				card:add_to_deck()
-				G.consumeables:emplace(card)
-				card:start_materialize()
 
 				return true
 			end
@@ -1440,7 +1789,7 @@ function Back.apply_to_run(arg_56_0)
 				for _ = 1,16 do
 					create_playing_card({front = G.P_CARDS.Mista}, G.deck)
 				end
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_mista")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_mista")
 				card:set_eternal(true)
 				card:add_to_deck()
 				G.jokers:emplace(card)
@@ -1467,7 +1816,7 @@ function Back.apply_to_run(arg_56_0)
 		G.E_MANAGER:add_event(Event({
 			func = function()
 				--sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_forkbomb")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_forkbomb")
 				card:set_eternal(true)
 				card:set_edition({negative = true}, true)
 				card:add_to_deck()
@@ -1483,7 +1832,7 @@ function Back.apply_to_run(arg_56_0)
 		G.E_MANAGER:add_event(Event({
 			func = function()
 				--sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_geriolish")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_geriolish")
 				card:set_eternal(true)
 				card:set_edition({negative = true}, true)
 				card:add_to_deck()
@@ -1513,7 +1862,7 @@ function Back.apply_to_run(arg_56_0)
 				card:start_materialize()
 				end
 				for _ = 1,5,1 do
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_geriolish")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_geriolish")
 				card:set_edition({negative = true}, true)
 				card:add_to_deck()
 				G.jokers:emplace(card)
@@ -1529,39 +1878,39 @@ function Back.apply_to_run(arg_56_0)
 		G.E_MANAGER:add_event(Event({
 			func = function()
 				--sendDebugMessage(tabledump(G.P_CARDS["Mista"]))
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_mista")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_mista")
 				card.pinned = true
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_geriolish")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_geriolish")
 				card.pinned = true
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_joker")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_joker")
 				card.pinned = true
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_mime")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_mime")
 				card.pinned = true
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_mista")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_mista")
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_geriolish")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_geriolish")
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_joker")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_joker")
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
-				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerio_mime")
+				card = create_card('Joker', G.jokers,nil,nil,nil,nil, "j_gerioc1_mime")
 				card:add_to_deck()
 				G.jokers:emplace(card)
 				card:start_materialize()
@@ -1619,24 +1968,44 @@ loc_def["ABSOLUTE"] = {
 	},
 }
 
-local geriodecks = {}
-geriodecks["mista"] = SMODS.Deck:new("Anti-Mista Deck", "mista", {mista_hater = true}, {x = 0, y = 0}, loc_def["mista"])
-geriodecks["mista"]["atlas"] = "gerio_p1_geriolish_1"
-geriodecks["forkbomb"] = SMODS.Deck:new("Fork BOMB", "forkbomb", {forkbomb = true}, {x = 0, y = 1}, loc_def["forkbomb"])
-geriodecks["forkbomb"]["atlas"] = "gerio_p1_geriolish_1"
-geriodecks["gerio"] = SMODS.Deck:new("geriogerio", "geriogerio", {geriogerio = true}, {x = 0, y = 1}, loc_def["gerio"])
-geriodecks["gerio"]["atlas"] = "gerio_p1_geriolish_1"
-geriodecks["pinpin"] = SMODS.Deck:new("PINPIN", "pinpin", {pinpin = true}, {x = 0, y = 1}, loc_def["PINPIN"])
-geriodecks["pinpin"]["atlas"] = "gerio_p1_geriolish_1"
-geriodecks["absolutity"] = SMODS.Deck:new("ABSOLUTE", "absolutity", {absolutity = true}, {x = 0, y = 1}, loc_def["ABSOLUTE"])
-geriodecks["absolutity"]["atlas"] = "gerio_p1_geriolish_1"
+--[[SMODS.Back{
+key = "mista",
+config = {mista_hater = true},
+pos = {x = 0, y = 0},
+loc_txt = loc_def["mista"],
+["atlas"] = "gerioc1_geriolish_1"
+}]]
+SMODS.Back{
+key = "forkbomb",
+config = {forkbomb = true},
+pos = {x = 0, y = 1},
+loc_txt = loc_def["forkbomb"],
+["atlas"] = "gerioc1_geriolish_1"
+}
+SMODS.Back{
+key = "geriogerio",
+config = {geriogerio = true},
+pos = {x = 0, y = 1},
+loc_txt = loc_def["gerio"],
+["atlas"] = "gerioc1_geriolish_1"
+}
+SMODS.Back{
+key = "pinpin",
+config = {pinpin = true},
+pos = {x = 0, y = 1},
+loc_txt = loc_def["PINPIN"],
+["atlas"] = "gerioc1_geriolish_1"
+}
+SMODS.Back{
+key = "absolutity",
+config = {absolutity = true},
+pos = {x = 0, y = 1},
+loc_txt = loc_def["ABSOLUTE"],
+["atlas"] = "gerioc1_geriolish_1"
+}
 
 function SMODS.current_mod.process_loc_text()
-    G.localization.descriptions.Joker.j_geriogerio_1972_geriolish.name = (math.random() >= 0.5 and "G" or "9")..(math.random() >= 0.5 and "e" or "3")..(math.random() >= 0.5 and "r" or "R")..(math.random() >= 0.5 and "i" or "1")..(math.random() >= 0.5 and "o" or "0") .. " Joker"
-end
-
-for _,h in pairs(geriodecks) do
-	h:register()
+    --G.localization.descriptions.Joker.j_geriogerio_1972_geriolish.name = (math.random() >= 0.5 and "G" or "9")..(math.random() >= 0.5 and "e" or "3")..(math.random() >= 0.5 and "r" or "R")..(math.random() >= 0.5 and "i" or "1")..(math.random() >= 0.5 and "o" or "0") .. " Joker"
 end
 
 ----------------------------------------------

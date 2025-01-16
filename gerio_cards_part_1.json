@@ -1,0 +1,13 @@
+{
+	"id": "gerio_cards_part_1",
+	"name": "Gerio Cards Part 1",
+	"author": ["GerioSB"],
+	"description": "An First set of Gerio Cards. Usually Unbalanced.\nHold M to Restart.",
+	"prefix": "gerioc1",
+	"main_file": "gerio_cards_part_1.lua",
+	"priority": -20,
+	"badge_colour": "a2dbd4",
+	"badge_text_colour": "ff60c0",
+	"display_name": "GC1",
+	"version": "1.0.0"
+}

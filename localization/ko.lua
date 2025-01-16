@@ -122,6 +122,16 @@ return {
 				},
 			},
 		},
+		Tarot={
+			c_death_shine={
+				name="죽음",
+				text={
+					"사용하는 순간",
+					"너는 이미",
+					"죽어 있다",
+				},
+			},
+		},
 		Other = {
 			gerio_unbreakable_consumable = {
 				name = "절대적",
@@ -150,6 +160,10 @@ return {
 			gerio_mista_four="아니 뭐야",
 			gerio_freepass_saved="ㅆㅂㅆㅂㅆㅂㅆㅂ",
 			gerio_too_high="너무 높아!",
+			gerio_killerdeath_line1="너",
+			gerio_killerdeath_line2="는",
+			gerio_killerdeath_line3="이미",
+			gerio_killerdeath_line4="죽어 있다",
 		},
 	},
 }

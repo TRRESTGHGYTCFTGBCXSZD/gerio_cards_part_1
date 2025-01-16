@@ -80,6 +80,10 @@ return {
 			gerio_mista_four="You Moron!",
 			gerio_freepass_saved="No way I lose this game!",
 			gerio_too_high="Too High!",
+			gerio_killerdeath_line1="You",
+			gerio_killerdeath_line2="are",
+			gerio_killerdeath_line3="already",
+			gerio_killerdeath_line4="dead.",
 		},
 	},
 }
