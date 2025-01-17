@@ -549,6 +549,19 @@ SMODS.Rarity{
 	pools = {}, -- you are not supposed to get this cards anyway
 }
 
+SMODS.ConsumableType{
+	key = "insanium",
+	primary_colour = HEX("a2dbd4"),
+	secondary_colour = HEX("ff60c0"),
+	loc_txt = {
+		name = 'Insanium', -- used on card type badges
+		collection = 'Insane Cards', -- label for the button to access the collection
+	},
+	collection_rows = {4,5,4},
+	shop_rate = 0,
+	default = "c_gerioc1_vaccumcleaner"
+}
+
 SMODS.Joker {
 	key = 'mista',
 	loc_txt = {
@@ -1036,7 +1049,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
   key = 'spectral_dumber',
-  set = 'Spectral',
+  set = 'insanium',
   loc_txt = {
     name = 'Spectral Pack Ticket',
     text = {
@@ -1076,7 +1089,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
   key = 'joker_popbob',
-  set = 'Spectral',
+  set = 'insanium',
   loc_txt = {
     name = 'Joker popbob',
     text = {
@@ -1119,7 +1132,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
   key = 'consumable_popbob',
-  set = 'Spectral',
+  set = 'insanium',
   loc_txt = {
     name = 'Consumable popbob',
     text = {
@@ -1163,7 +1176,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
   key = 'voucher_popbob',
-  set = 'Spectral',
+  set = 'insanium',
   loc_txt = {
     name = 'Voucher popbob',
     text = {
@@ -1238,7 +1251,7 @@ local suits = {"S","D","H","C"}
 
 SMODS.Consumable {
   key = 'standard_popbob',
-  set = 'Spectral',
+  set = 'insanium',
   loc_txt = {
     name = 'Standard Set',
     text = {
@@ -1293,7 +1306,7 @@ end
 
 SMODS.Consumable {
   key = 'baseball_sticker',
-  set = 'Spectral',
+  set = 'insanium',
   loc_txt = locale,
 	loc_vars = function(self, info_queue, card)
 		local putdispenserhere = {}
@@ -1348,7 +1361,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
 	key = 'blueprinter',
-	set = 'Spectral',
+	set = 'insanium',
 	loc_txt = {
 		name = 'Blueprinter',
 		text = {
@@ -1451,7 +1464,7 @@ SMODS.Consumable {
 
 SMODS.Consumable {
 	key = 'pullerist',
-	set = 'Spectral',
+	set = 'insanium',
 	loc_txt = {
 		name = 'Puller',
 		text = {
